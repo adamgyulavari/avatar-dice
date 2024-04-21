@@ -1,0 +1,17 @@
+{
+    "name": "avatar-dice",
+    "version": "0.0.1",
+    "description": "dice set for avatar legends",
+    "type": "commonjs",
+    "scripts": {
+        "start": "node src/backend.js",
+        "dev": "nodemon src/backend.js"
+    },
+    "dependencies": {
+        "express": "^4.19.2",
+        "socket.io": "^4.7.5"
+    },
+    "devDependencies": {
+        "nodemon": "^3.1.0"
+    }
+}
