@@ -13,6 +13,8 @@ app.use(express.static("public"));
 
 const users = {};
 
+const validUsers = ["Panuq", "Yina", "Yama", "Zaira", "Kanti", "GM"]
+
 io.on("connection", (socket) => {
   let username = null;
   console.log("a user connected");
@@ -23,15 +25,26 @@ io.on("connection", (socket) => {
     io.emit("users", users);
   });
   socket.on("login", ({ user, bending }) => {
-    username = user;
-    users[username] = bending;
-    io.emit("users", users);
+    if (validUsers.includes(user)) {
+      username = user;
+      users[username] = bending;
+      io.emit("users", users);
+      console.log(Object.entries(users));
+      socket.emit("logged in");
+    } else {
+      socket.emit("invalid");
+    }
   });
   socket.on("roll", () => {
-    const first = Math.floor(Math.random() * 6);
-    const second = Math.floor(Math.random() * 6);
-    io.emit("rolled", { user: username, result: `2d6@${first},${second}` });
+    const first = Math.floor(Math.random() * 6)+1;
+    const second = Math.floor(Math.random() * 6)+1;
+    io.emit("rolled", { user: username, sum: first+second, result: `2d6@${first},${second}`, bending: users[username] });
   });
+  socket.on("logout", (username) => {
+    delete users[username];
+    io.emit("users", users);
+    io.emit("logout", username);
+  })
 });
 
 server.listen(PORT, () => {
