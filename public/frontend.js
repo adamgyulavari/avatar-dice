@@ -14,18 +14,28 @@ let currentUser = null;
 let Box = null;
 const currentUserBoxes = {};
 const colors = {
-    waterPanuq: "#00d9ff",
-    air: "#636363",
-    water: "#2063e9",
-    tech: "#7028ed",
-    earth: "#c4c427",
-    fire: "#d81128",
-  };
+  waterPanuq: "#00d9ff",
+  air: "#636363",
+  water: "#2063e9",
+  tech: "#7028ed",
+  earth: "#c4c427",
+  fire: "#d81128",
+};
+const GM = 'gm';
+
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+}
 const createCard = (username, bending) => {
-  const actions = currentUser === 'GM' ? `<a href="#" class="remove btn btn-danger btn-sm" data-username="${username}">remove</a>` : ""
+  const actions =
+    currentUser.toLowerCase() === GM
+      ? `<a href="#" class="remove btn btn-danger btn-sm" data-username="${username}">remove</a>`
+      : "";
   const item = document.createElement("div");
   item.innerHTML = `<div class="card col position-relative box-container">
-    <img src="/images/${username}.jpeg" class="card-img-top" alt="${username}">
+    <img src="/images/${capitalizeFirstLetter(
+      username
+    )}.jpeg" class="card-img-top" alt="${username}">
     <div class="card-body">
       <h5 class="card-title">${username}</h5>
       ${actions}
@@ -46,22 +56,24 @@ const createCard = (username, bending) => {
     baseScale: 100,
     strength: 2,
     onRollComplete: (results) => {
-      progress.classList.add('d-none');
-      detail.classList.remove('d-none');
-      rollBtn.removeAttribute('disabled');
+      progress.classList.add("d-none");
+      detail.classList.remove("d-none");
+      rollBtn.removeAttribute("disabled");
     },
   });
   Box.initialize()
     .then()
     .catch((e) => console.error(e));
-   currentUserBoxes[username] = Box;
+  currentUserBoxes[username] = Box;
 };
 
 const renderUsers = (users) => {
   userContainer.innerHTML = "";
-  Object.entries(users).filter(([user, _]) => user !== "GM").forEach(([user, bending]) => {
-    createCard(user, bending);
-  });
+  Object.entries(users)
+    .filter(([user, _]) => user.toLowerCase() !== GM)
+    .forEach(([user, bending]) => {
+      createCard(user, bending);
+    });
 };
 
 userContainer.addEventListener("click", (event) => {
@@ -85,29 +97,29 @@ form.addEventListener("submit", (e) => {
 });
 
 socket.on("logged in", () => {
-    const login = document.getElementById("login");
-    login.classList.add("d-none");
-    main.classList.remove("d-none");
-    if (currentUser === 'GM') {
-        mainActions.classList.add("d-none");
-    } else {
-        mainActions.classList.remove("d-none");
-    }
+  const login = document.getElementById("login");
+  login.classList.add("d-none");
+  main.classList.remove("d-none");
+  if (currentUser.toLowerCase() === GM) {
+    mainActions.classList.add("d-none");
+  } else {
+    mainActions.classList.remove("d-none");
+  }
 });
 socket.on("invalid", () => {
-    input.classList.add("is-invalid");
-})
+  input.classList.add("is-invalid");
+});
 
 socket.on("users", (users) => {
   console.log({ users });
   renderUsers(users);
 });
 socket.on("rolled", ({ user, sum, result, bending }) => {
-    progress.innerHTML = `${user} rolls...`;
-    progress.classList.remove('d-none');
-    detail.classList.add('d-none');
+  progress.innerHTML = `${user} rolls...`;
+  progress.classList.remove("d-none");
+  detail.classList.add("d-none");
   detail.innerHTML = `${user} rolled <strong>${sum}</strong>!`;
-roll(user, result);
+  roll(user, result);
 });
 socket.on("logout", (user) => {
   if (user === currentUser) {
@@ -119,7 +131,7 @@ socket.on("logout", (user) => {
 });
 
 const roll = (user, result) => {
-  rollBtn.setAttribute('disabled', 'disabled');
+  rollBtn.setAttribute("disabled", "disabled");
   currentUserBoxes[user].roll(result);
 };
 
